@@ -1,24 +1,39 @@
-
 import React from "react";
-import { NavLink } from "react-router-dom"; 
-
-import homelogo from "../../../assets/homelogo.svg";
+import { NavLink } from "react-router-dom";
+import { usePatients } from "../../hooks/usePatients"; 
 import calender from "../../../assets/calender.svg";
 import record from "../../../assets/record.svg";
+import mail from "../../../assets/mail.svg";
+import homelogo from "../../../assets/homelogo.svg";
 import msg from "../../../assets/msg.svg";
 import profile from "../../../assets/profile.svg";
-import mail from "../../../assets/mail.svg";
 
 export default function PatientDash() {
-    
+  const { data, isLoading, isError, error } = usePatients();
 
+  // Sidebar items
   const sidebarItems = [
-    { label: "Dashboard", icon: homelogo, path: "/dashboard" }, 
+    { label: "Dashboard", icon: homelogo, path: "/dashboard" },
     { label: "My Appointments", icon: calender, path: "/my-appointments" },
     { label: "Medical Records", icon: record, path: "/medical-records" },
     { label: "Messages", icon: msg, path: "/messages" },
     { label: "Profile", icon: profile, path: "/profile" },
   ];
+
+  // Loading or error states for patients
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen text-text-dark">
+        Loading patients...
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500">
+        Error: {error.message}
+      </div>
+    );
 
   return (
     <div
@@ -55,8 +70,8 @@ export default function PatientDash() {
                         `flex items-center gap-3 rounded-lg px-4 py-2 font-medium transition-all duration-200
                         ${
                           isActive
-                            ? "bg-bg-light-secondary text-text-dark"
-                            : "bg-bg-light-primary text-text-dark hover:bg-dark-primary hover:text-light"
+                            ? "bg-bg-light-secondary text-text-dark font-semibold"
+                            : "bg-bg-light-primary text-text-dark hover:bg-bg-light-secondary"
                         }`
                       }
                     >
@@ -73,7 +88,7 @@ export default function PatientDash() {
             </div>
           </div>
 
-          {/*MAIN CONTENT  */}
+          {/* MAIN CONTENT */}
           <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
             {/* Header */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
@@ -88,6 +103,32 @@ export default function PatientDash() {
                 Book New Appointment
               </button>
             </div>
+
+            {/* Patient List Section */}
+            {/* <div className="p-6">
+              <h2 className="text-[22px] font-bold mb-4 text-text-dark">
+                Patients ({data?.count || 0})
+              </h2>
+
+              <ul className="space-y-3">
+                {data?.patients.map((p) => (
+                  <li
+                    key={p._id}
+                    className="flex items-center justify-between bg-bg-light-secondary hover:bg-bg-light-primary p-3 rounded-lg transition-all duration-200"
+                  >
+                    <div>
+                      <p className="font-medium text-text-dark">
+                        {p.userId?.firstName} {p.userId?.lastName}
+                      </p>
+                      <p className="text-sm text-gray-500">{p.userId?.email}</p>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {p.gender || "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div> */}
 
             {/* Upcoming Appointment */}
             <h2 className="text-text-dark text-[22px] font-bold px-4 pb-3 pt-5">
@@ -127,95 +168,94 @@ export default function PatientDash() {
             <h2 className="text-text-dark text-[22px] font-bold px-4 pb-3 pt-5">
               Recent Activity
             </h2>
-             {[
-            {
+            {[
+              {
                 title: "Message Received",
                 desc: "New message from Dr. Carter",
                 time: "2d ago",
-                 icon: mail,
-            },
-            {
+                icon: mail,
+              },
+              {
                 title: "Test Results",
                 desc: "Your blood test results are ready",
                 time: "3d ago",
                 icon: record,
-            },
+              },
             ].map((activity, i) => (
-            <div
-        key={i}
-             className="flex items-center gap-4 bg-bg-light-primary px-4 min-h-[72px] py-2 justify-between hover:bg-bg-light-secondary transition-colors duration-200"
->
-        <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center rounded-lg bg-bg-light-secondary shrink-0 size-12">
-            <img
-                src={activity.icon}
-                alt={`${activity.title} icon`}
-                className="w-6 h-6 object-contain"
-            />
-            </div>
+              <div
+                key={i}
+                className="flex items-center gap-4 bg-bg-light-primary px-4 min-h-[72px] py-2 justify-between hover:bg-bg-light-secondary transition-colors duration-200"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center rounded-lg bg-bg-light-secondary shrink-0 size-12">
+                    <img
+                      src={activity.icon}
+                      alt={`${activity.title} icon`}
+                      className="w-6 h-6 object-contain"
+                    />
+                  </div>
 
-            <div className="flex flex-col justify-center">
-            <p className="text-text-dark text-base font-medium leading-normal">
-                {activity.title}
-            </p>
-            <p className="text-[#616f89] text-sm font-normal leading-normal">
-                {activity.desc}
-            </p>
-            </div>
-        </div>
+                  <div className="flex flex-col justify-center">
+                    <p className="text-text-dark text-base font-medium leading-normal">
+                      {activity.title}
+                    </p>
+                    <p className="text-[#616f89] text-sm font-normal leading-normal">
+                      {activity.desc}
+                    </p>
+                  </div>
+                </div>
 
-        <p className="text-[#616f89] text-sm font-normal leading-normal">
-            {activity.time}
-        </p>
-        </div>
+                <p className="text-[#616f89] text-sm font-normal leading-normal">
+                  {activity.time}
+                </p>
+              </div>
+            ))}
 
-))}
             {/* Past Appointments */}
             <h2 className="text-text-dark text-[22px] font-bold px-4 pb-3 pt-5">
               Past Appointments
             </h2>
 
             {[
-            {
+              {
                 doctor: "Dr. Carter",
                 type: "General Checkup",
                 time: "2 months ago",
                 icon: calender,
-            },
-            {
+              },
+              {
                 doctor: "Dr. Bennett",
                 type: "Dermatology Consultation",
                 time: "6 months ago",
                 icon: calender,
-            },
+              },
             ].map((apt, i) => (
-            <div
+              <div
                 key={i}
                 className="flex items-center gap-4 bg-bg-light-primary px-4 min-h-[72px] py-2 justify-between hover:bg-bg-light-secondary transition-colors duration-200"
-            >
-
+              >
                 <div className="flex items-center gap-4">
-                <div className="flex items-center justify-center rounded-lg bg-bg-light-secondary shrink-0 w-12 h-12">
+                  <div className="flex items-center justify-center rounded-lg bg-bg-light-secondary shrink-0 w-12 h-12">
                     <img
-                    src={apt.icon}
-                    alt={`${apt.doctor} icon`}
-                    className="w-6 h-6 object-contain"
+                      src={apt.icon}
+                      alt={`${apt.doctor} icon`}
+                      className="w-6 h-6 object-contain"
                     />
-                </div>
+                  </div>
 
-                <div className="flex flex-col justify-center">
+                  <div className="flex flex-col justify-center">
                     <p className="text-text-dark text-base font-medium leading-normal">
-                    {apt.doctor}
+                      {apt.doctor}
                     </p>
                     <p className="text-[#616f89] text-sm font-normal leading-normal">
-                    {apt.type}
+                      {apt.type}
                     </p>
-                </div>
+                  </div>
                 </div>
                 <p className="text-[#616f89] text-sm font-normal leading-normal">
-                {apt.time}
+                  {apt.time}
                 </p>
-            </div>
+              </div>
             ))}
           </div>
         </div>
